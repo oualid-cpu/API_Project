@@ -12,7 +12,7 @@ import Home from "./pages/Home.jsx";
 import EventDetails from "./pages/EventDetails.jsx";
 // import SignIn from "./pages/SignIn.jsx";
 // import SignUp from "./pages/SignUp.jsx";
-import { LoginSignUpForms } from "./pages/LoginSignup.jsx";
+import { LoginPage } from "./pages/LoginSignup.jsx";
 import CreateEvent from "./pages/CreateEvent.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
@@ -32,8 +32,8 @@ const router = createBrowserRouter([
       { path: "sign-up", element: <Navigate to="/user/sign-up" replace /> }, // Route users to sign up
       { path: "user", element: <Navigate to="/user/login" replace /> }, // Route users to login
 
-      { path: "user/login", element: <LoginSignUpForms /> }, // "/sign-in"
-      { path: "user/sign-up", element: <LoginSignUpForms /> }, // "/sign-up"
+      { path: "user/login", element: <LoginPage /> }, // "/sign-in"
+      { path: "user/sign-up", element: <LoginPage /> }, // "/sign-up"
       {
         path: "events/new", // "/events/new" (protected)
         element: (
