@@ -182,7 +182,9 @@ export const NavbarLogo = () => {
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
       <img src={logo} alt="logo" width={30} height={30} />
-      <span className="font-medium text-black dark:text-white">Event UI</span>
+      <span className="text-2xl font-semibold text-black dark:text-white">
+        <span className="text-red-500">event</span>ually.
+      </span>
     </Link>
   );
 };

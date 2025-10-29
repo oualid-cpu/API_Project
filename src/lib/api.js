@@ -12,8 +12,9 @@ export async function api(path, { method = "GET", body, headers } = {}) {
     },
     body: body ? JSON.stringify(body) : undefined,
   });
+  // console.log(`${BASE}${path}`);
   const text = await res.text();
-  console.log(`${BASE}${path}`);
+
   const data = text ? JSON.parse(text) : null;
   if (!res.ok)
     throw { status: res.status, message: data?.message || res.statusText };

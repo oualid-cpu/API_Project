@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import UserAvatar from "./UserAvatar";
 import {
   Navbar,
   NavBody,
@@ -9,20 +10,22 @@ import {
   MobileNavHeader,
   MobileNavToggle,
   MobileNavMenu,
+  NavbarButton,
 } from "@/components/ui/resizable-navbar";
 import { LoginModal } from "@/components/LoginModal";
+import { getToken, logout } from "@/lib/auth";
 
 export function Nav() {
   const navItems = [];
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [token, setTokenState] = useState(getToken());
 
   return (
     <div className="relative w-full">
       <Navbar>
-        {/* Desktop Navigation */}
+        {/* Desktop Nav */}
         <NavBody className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <NavbarLogo />
-
           <NavItems
             items={navItems}
             className="flex gap-6 text-gray-700 dark:text-gray-100"
@@ -30,11 +33,26 @@ export function Nav() {
           />
 
           <div className="flex items-center gap-4">
-            <LoginModal />
+            {token ? (
+              <UserAvatar />
+            ) : (
+              <LoginModal onLogin={() => setTokenState(getToken())} />
+            )}
+            {token && (
+              <NavbarButton
+                variant="dark"
+                onClick={() => {
+                  logout();
+                  setTokenState(null);
+                }}
+              >
+                Logout
+              </NavbarButton>
+            )}
           </div>
         </NavBody>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Nav */}
         <MobileNav>
           <MobileNavHeader className="px-4 py-3 flex items-center justify-between bg-white shadow-md">
             <NavbarLogo />
@@ -61,7 +79,22 @@ export function Nav() {
             ))}
 
             <div className="flex w-full flex-col gap-4 mt-2">
-              <LoginModal />
+              {token ? (
+                <UserAvatar />
+              ) : (
+                <LoginModal onLogin={() => setTokenState(getToken())} />
+              )}
+              {token && (
+                <NavbarButton
+                  variant="dark"
+                  onClick={() => {
+                    logout();
+                    setTokenState(null);
+                  }}
+                >
+                  Logout
+                </NavbarButton>
+              )}
             </div>
           </MobileNavMenu>
         </MobileNav>

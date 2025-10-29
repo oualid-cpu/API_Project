@@ -1,19 +1,19 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogClose,
 } from "@/components/animate-ui/components/radix/dialog";
 import { NavbarButton } from "@/components/ui/resizable-navbar";
-import { LoginSignUpForms } from "@/components/LoginTabs";
+import { LoginSignUpForms } from "./LoginTabs";
 
-export function LoginModal() {
+export function LoginModal({ onLogin }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <NavbarButton
           variant="primary"
@@ -22,21 +22,14 @@ export function LoginModal() {
           Login
         </NavbarButton>
       </DialogTrigger>
-
-      <DialogContent className="sm:max-w-[480px] bg-white p-6 rounded-2xl shadow-2xl">
-        <DialogHeader className="mb-4">
-          <DialogTitle className="text-2xl font-semibold text-center text-gray-800">
-            Welcome Back!
-          </DialogTitle>
-        </DialogHeader>
-
-        <LoginSignUpForms isModal />
-
-        <DialogClose asChild>
-          <Button variant="outline" className="mt-4 w-full hover:bg-gray-100">
-            Close
-          </Button>
-        </DialogClose>
+      <DialogContent className="sm:max-w-[425px]">
+        <LoginSignUpForms
+          isModal={true}
+          onLogin={() => {
+            if (onLogin) onLogin();
+            setOpen(false);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

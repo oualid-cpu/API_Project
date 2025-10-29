@@ -1,7 +1,9 @@
+// TODO: Fix issue with Sign-up where the user needs to log in again after creating an account
+
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
-import { setToken } from "@/lib/auth";
+import { setToken, setUserProfile } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 
-export function SignupForm({ className, ...props }) {
+export function SignupForm({ className, onSignup, closeModal, ...props }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -55,9 +57,19 @@ export function SignupForm({ className, ...props }) {
         },
       });
 
-      if (data.token) setToken(data.token);
+      if (data.token) {
+        setToken(data.token);
+        setUserProfile({
+          name: data.name,
+          email: data.email,
+        });
 
-      navigate("/"); // or "/user/login"
+        if (onSignup) onSignup();
+
+        if (closeModal) closeModal();
+
+        if (!closeModal) navigate("/");
+      }
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {

@@ -1,6 +1,6 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import {
   Tabs,
   TabsContent,
@@ -12,7 +12,7 @@ import {
 import { LoginForm } from "@/components/login-form";
 import { SignupForm } from "@/components/signup-form";
 
-export function LoginSignUpForms({ isModal = false }) {
+export function LoginSignUpForms({ isModal = false, onLogin }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
@@ -27,8 +27,6 @@ export function LoginSignUpForms({ isModal = false }) {
 
   const handleTabChange = (value) => {
     setActiveTab(value);
-
-    // Navigate only if not in a modal
     if (!isModal) navigate(`/user/${value}`);
   };
 
@@ -41,10 +39,10 @@ export function LoginSignUpForms({ isModal = false }) {
 
       <TabsContents className="py-6">
         <TabsContent value="login" className="flex flex-col gap-6">
-          <LoginForm isModal={isModal} />
+          <LoginForm isModal={isModal} onLogin={onLogin} />
         </TabsContent>
         <TabsContent value="sign-up" className="flex flex-col gap-6">
-          <SignupForm isModal={isModal} />
+          <SignupForm isModal={isModal} onLogin={onLogin} />
         </TabsContent>
       </TabsContents>
     </Tabs>
