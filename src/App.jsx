@@ -29,11 +29,8 @@ export default function App() {
               </>
             ) : (
               <>
-                <Link to="/sign-in" className="btn">
-                  Sign In
-                </Link>
-                <Link to="/sign-up" className="btn btn-primary">
-                  Sign Up
+                <Link to="/user/login" className="btn">
+                  Login
                 </Link>
               </>
             )}
