@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { getToken, clearToken } from "./lib/auth";
+import { Nav } from "./components/navbar";
 
 export default function App() {
   const authed = !!getToken();
@@ -13,34 +14,9 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <header className="border-b">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between p-4">
-          <Link to="/" className="font-semibold">
-            Events
-          </Link>
-          <div className="flex items-center gap-3">
-            {authed ? (
-              <>
-                <Link to="/events/new" className="btn btn-primary">
-                  New Event
-                </Link>
-                <button onClick={signOut} className="btn">
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/sign-in" className="btn">
-                  Sign In
-                </Link>
-                <Link to="/sign-up" className="btn btn-primary">
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
+        <Nav />
       </header>
-      <main className="mx-auto max-w-5xl p-4">
+      <main className="mx-auto max-w-5xl p-4 pt-16">
         <Outlet />
       </main>
     </div>
