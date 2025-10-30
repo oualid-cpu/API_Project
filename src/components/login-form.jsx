@@ -50,7 +50,7 @@ export function LoginForm({ className, onLogin, closeModal, ...props }) {
       if (closeModal) closeModal();
 
       // Navigate if not in modal
-      if (!closeModal) navigate("/");
+      if (!closeModal) navigate("/dashboard");
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.message || "Login failed");

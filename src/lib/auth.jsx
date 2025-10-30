@@ -16,6 +16,30 @@ export const getUserProfileFromStorage = () => {
   return data ? JSON.parse(data) : null;
 };
 
+export async function getUserData(id) {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    const res = await fetch(
+      `${
+        import.meta.env.VITE_API_BASE || "http://localhost:3001"
+      }/api/users/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!res.ok) throw new Error("Failed to fetch User Data");
+    const data = await res.json();
+    return data.name;
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    return null;
+  }
+}
+
 export async function fetchUserProfile() {
   const token = getToken();
   if (!token) return null;
