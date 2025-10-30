@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { fetchUserProfile } from "@/lib/auth";
+import { Link } from "react-router-dom";
 
 export default function UserAvatar() {
   const [user, setUser] = useState(null);
@@ -31,7 +32,11 @@ export default function UserAvatar() {
           {initials}
         </AvatarFallback>
       </Avatar>
-      <p className="font-medium text-gray-800">{name}</p>
+      <Link to="/user/dashboard" className="cursor-pointer">
+        <button className="font-medium text-gray-800 hover:underline cursor-pointer">
+          {name}
+        </button>
+      </Link>
     </div>
   );
 }
