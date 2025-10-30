@@ -68,53 +68,52 @@ export function Nav() {
       </NavBody>
 
       {/* Mobile Nav */}
-      <div className="md:hidden">
-        <MobileNav>
-          <MobileNavHeader className="px-4 py-3 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200">
-            <NavbarLogo />
-            <MobileNavToggle
-              isOpen={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            />
-          </MobileNavHeader>
 
-          <MobileNavMenu
+      <MobileNav visible={false}>
+        <MobileNavHeader className="px-4 py-3 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200">
+          <NavbarLogo />
+          <MobileNavToggle
             isOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
-            className="bg-white p-4 space-y-4 shadow-lg"
-          >
-            {navItems.map((item, idx) => (
-              <a
-                key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-gray-700 hover:text-coolBlue transition-colors duration-200"
-              >
-                {item.name}
-              </a>
-            ))}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </MobileNavHeader>
 
-            <div className="flex w-full flex-col gap-4 mt-2">
-              {token ? (
-                <UserAvatar />
-              ) : (
-                <LoginModal onLogin={() => setTokenState(getToken())} />
-              )}
-              {token && (
-                <NavbarButton
-                  variant="dark"
-                  onClick={() => {
-                    logout();
-                    setTokenState(null);
-                  }}
-                >
-                  Logout
-                </NavbarButton>
-              )}
-            </div>
-          </MobileNavMenu>
-        </MobileNav>
-      </div>
+        <MobileNavMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          className="bg-white p-4 space-y-4 shadow-lg"
+        >
+          {navItems.map((item, idx) => (
+            <a
+              key={`mobile-link-${idx}`}
+              href={item.link}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-coolBlue transition-colors duration-200"
+            >
+              {item.name}
+            </a>
+          ))}
+
+          <div className="flex w-full flex-col gap-4 mt-2">
+            {token ? (
+              <UserAvatar />
+            ) : (
+              <LoginModal onLogin={() => setTokenState(getToken())} />
+            )}
+            {token && (
+              <NavbarButton
+                variant="dark"
+                onClick={() => {
+                  logout();
+                  setTokenState(null);
+                }}
+              >
+                Logout
+              </NavbarButton>
+            )}
+          </div>
+        </MobileNavMenu>
+      </MobileNav>
     </Navbar>
   );
 }
