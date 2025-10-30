@@ -7,18 +7,26 @@ export default function App() {
 
   function signOut() {
     clearToken();
-    // simple reload to refresh UI state
     window.location.assign("/");
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b">
-        <Nav />
-      </header>
-      <main className="mx-auto max-w-5xl p-4 pt-16">
-        <Outlet />
-      </main>
+    <div className="relative min-h-screen bg-sky-200">
+      <div
+        className="absolute inset-0 bg-[url('./assets/doodles.png')] bg-repeat bg-fixed mix-blend-multiply pointer-events-none"
+        style={{ backgroundSize: "auto", opacity: 0.6 }}
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-white/0 pointer-events-none" />
+
+      <div className="relative z-10">
+        <header className="border-b">
+          <Nav />
+        </header>
+        <main className="mx-auto max-w-5xl p-4 pt-16">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
