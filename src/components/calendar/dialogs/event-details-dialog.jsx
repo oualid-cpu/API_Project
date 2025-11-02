@@ -46,7 +46,7 @@ export function EventDetailsDialog({ event, children }) {
     }
   };
 
-  const canEditOrDelete = currentUser?.id === event.user?.id;
+  const canEditOrDelete = currentUser.id === event.organizerId;
 
   return (
     <Dialog>
