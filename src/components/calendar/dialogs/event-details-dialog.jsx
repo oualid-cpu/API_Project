@@ -16,7 +16,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCalendar } from "@/components/calendar/contexts/calendar-context";
 import { AddEditEventDialog } from "@/components/calendar/dialogs/add-edit-event-dialog";
 import { formatTime } from "@/components/calendar/helpers";
-import { getUserProfileFromStorage, getUserData } from "@/lib/auth"; // adjust path if needed
+import { getUserProfileFromStorage, getUserData } from "@/lib/auth";
+import { apiDeleteEvent } from "../requests";
 
 export function EventDetailsDialog({ event, children }) {
   const startDate = parseISO(event.startDate);
@@ -37,11 +38,15 @@ export function EventDetailsDialog({ event, children }) {
     if (event.organizerId) fetchOrganiser();
   }, [event.organizerId]);
 
-  const deleteEvent = (eventId) => {
+  const deleteEvent = async (eventId) => {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
     try {
+      await apiDeleteEvent(eventId);
       removeEvent(eventId);
       toast.success("Event deleted successfully.");
-    } catch {
+    } catch (err) {
+      console.error("Failed to delete event:", err);
       toast.error("Error deleting event.");
     }
   };

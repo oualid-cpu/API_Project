@@ -1,3 +1,4 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addMinutes, format, set } from "date-fns";
 import { useEffect, useMemo } from "react";
@@ -36,29 +37,28 @@ import { COLORS, EVENTTYPE } from "@/components/calendar/constants";
 import { useCalendar } from "@/components/calendar/contexts/calendar-context";
 import { useDisclosure } from "@/components/calendar/hooks";
 import { eventSchema } from "@/components/calendar/schemas";
+import { apiAddEvent, apiUpdateEvent } from "../requests";
+import { getUserProfileFromStorage } from "@/lib/auth";
 
 export function AddEditEventDialog({ children, startDate, startTime, event }) {
   const { isOpen, onClose, onToggle } = useDisclosure();
   const { addEvent, updateEvent } = useCalendar();
   const isEditing = !!event;
+  const currentUser = getUserProfileFromStorage();
 
   const initialDates = useMemo(() => {
     if (!isEditing && !event) {
-      if (!startDate) {
-        const now = new Date();
-        return { startDate: now, endDate: addMinutes(now, 30) };
-      }
+      const now = new Date();
       const start = startTime
-        ? set(new Date(startDate), {
+        ? set(new Date(startDate || now), {
             hours: startTime.hour,
             minutes: startTime.minute,
             seconds: 0,
           })
-        : new Date(startDate);
+        : new Date(startDate || now);
       const end = addMinutes(start, 30);
       return { startDate: start, endDate: end };
     }
-
     return {
       startDate: new Date(event.startDate),
       endDate: new Date(event.endDate),
@@ -72,7 +72,8 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
       description: event?.description ?? "",
       startDate: initialDates.startDate,
       endDate: initialDates.endDate,
-      eventType: event?.eventType ?? "Other",
+      location: event?.location ?? "",
+      eventType: event?.eventType ?? "",
     },
   });
 
@@ -82,39 +83,38 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
       description: event?.description ?? "",
       startDate: initialDates.startDate,
       endDate: initialDates.endDate,
-      eventType: event?.eventType ?? "Other",
+      location: event?.location ?? "",
+      eventType: event?.eventType ?? "",
     });
   }, [event, initialDates, form]);
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
     try {
-      const formattedEvent = {
-        ...values,
+      const payload = {
+        title: values.title,
+        description: values.description,
         startDate: format(values.startDate, "yyyy-MM-dd'T'HH:mm:ss"),
         endDate: format(values.endDate, "yyyy-MM-dd'T'HH:mm:ss"),
-        id: isEditing ? event.id : Math.floor(Math.random() * 1000000),
-        user: isEditing
-          ? event.user
-          : {
-              id: Math.floor(Math.random() * 1000000).toString(),
-              name: "Jeraidi Yassir",
-              picturePath: null,
-            },
-        color: EVENTTYPE[values.eventType], // automatically assign color
+        location: values.location,
+        eventType: values.eventType,
+        organizerId: isEditing ? event.organizerId : currentUser.id,
       };
 
+      let savedEvent;
       if (isEditing) {
-        updateEvent(formattedEvent);
+        savedEvent = await apiUpdateEvent(event.id, payload);
+        updateEvent(savedEvent); // use API response to update context
         toast.success("Event updated successfully");
       } else {
-        addEvent(formattedEvent);
+        savedEvent = await apiAddEvent(payload);
+        addEvent(savedEvent); // use API response to update context
         toast.success("Event created successfully");
       }
 
       onClose();
       form.reset();
-    } catch (error) {
-      console.error(`Error ${isEditing ? "editing" : "adding"} event:`, error);
+    } catch (err) {
+      console.error(err);
       toast.error(`Failed to ${isEditing ? "edit" : "add"} event`);
     }
   };
@@ -177,12 +177,36 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
 
             <FormField
               control={form.control}
+              name="location"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel htmlFor="location" className="required">
+                    Location
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="location"
+                      placeholder="Enter a location"
+                      {...field}
+                      className={fieldState.invalid ? "border-red-500" : ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="eventType"
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="required">Event Type</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => field.onChange(value)}
+                    >
                       <SelectTrigger
                         className={`w-full ${
                           fieldState.invalid ? "border-red-500" : ""
@@ -195,7 +219,7 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
                           <SelectItem value={type} key={type}>
                             <div className="flex items-center gap-2">
                               <div
-                                className={`size-3.5 rounded-full bg-${EVENTTYPE[type]}-600`}
+                                className={`size-3.5 rounded-full bg-${EVENTTYPE[type]}-600 dark:bg-${EVENTTYPE[type]}-700`}
                               />
                               {type}
                             </div>
