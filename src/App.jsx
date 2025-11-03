@@ -1,45 +1,32 @@
 import { Link, Outlet } from "react-router-dom";
 import { getToken, clearToken } from "./lib/auth";
+import { Nav } from "./components/navbar";
 
 export default function App() {
   const authed = !!getToken();
 
   function signOut() {
     clearToken();
-    // simple reload to refresh UI state
     window.location.assign("/");
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between p-4">
-          <Link to="/" className="font-semibold">
-            Events
-          </Link>
-          <div className="flex items-center gap-3">
-            {authed ? (
-              <>
-                <Link to="/events/new" className="btn btn-primary">
-                  New Event
-                </Link>
-                <button onClick={signOut} className="btn">
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/user/login" className="btn">
-                  Login
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
-      </header>
-      <main className="mx-auto max-w-5xl p-4">
-        <Outlet />
-      </main>
+    <div className="relative min-h-screen bg-sky-200">
+      <div
+        className="absolute inset-0 bg-[url('./assets/doodles.png')] bg-repeat bg-fixed mix-blend-multiply pointer-events-none"
+        style={{ backgroundSize: "auto", opacity: 0.6 }}
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-white/0 pointer-events-none" />
+
+      <div className="relative z-10">
+        <header className="border-b">
+          <Nav />
+        </header>
+        <main className="mx-auto max-w-5xl p-4 pt-16">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

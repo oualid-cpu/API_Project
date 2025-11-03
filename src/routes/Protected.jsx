@@ -4,6 +4,6 @@ import { getToken } from "../lib/auth";
 export default function Protected({ children }) {
   const token = getToken();
   const loc = useLocation();
-  if (!token) return <Navigate to="/sign-in" state={{ from: loc }} replace />;
+  if (!token) return <Navigate to="/login" state={{ from: loc }} replace />;
   return children;
 }

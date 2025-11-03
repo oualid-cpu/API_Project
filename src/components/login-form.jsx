@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
-import { setToken } from "@/lib/auth";
+import { setToken, fetchUserProfile } from "@/lib/auth";
 import { Spinner } from "./ui/spinner";
 
-export function LoginForm({ className, ...props }) {
+export function LoginForm({ className, onLogin, closeModal, ...props }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,13 +33,24 @@ export function LoginForm({ className, ...props }) {
     setError("");
 
     try {
+      // Login
       const data = await api("/api/auth/login", {
         method: "POST",
         body: { email, password },
       });
-
       setToken(data.token);
-      navigate("/");
+
+      // Fetch full profile immediately
+      await fetchUserProfile();
+
+      // Notify navbar
+      if (onLogin) onLogin();
+
+      // Close modal if passed
+      if (closeModal) closeModal();
+
+      // Navigate if not in modal
+      if (!closeModal) navigate("/dashboard");
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.message || "Login failed");
