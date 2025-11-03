@@ -46,7 +46,7 @@ export function Calendar() {
         }));
 
         setEvents(transformedEvents);
-
+        console.log(eventsData);
         setUsers(Array.isArray(usersData) ? usersData : []);
       } catch (err) {
         console.error("Failed to load calendar data:", err);
