@@ -1,6 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
 import { getToken, clearToken } from "./lib/auth";
 import { Nav } from "./components/navbar";
+import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   const authed = !!getToken();
@@ -18,7 +19,7 @@ export default function App() {
       />
 
       <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-white/0 pointer-events-none" />
-
+      <Toaster position="top-right" />
       <div className="relative z-10">
         <header className="border-b">
           <Nav />

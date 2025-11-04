@@ -7,12 +7,14 @@ import ReactMarkdown from "react-markdown";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/UserAvatar";
+import MapWithMarker from "@/components/MapWithMarker";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 
 export default function EventDetails() {
@@ -126,6 +128,18 @@ export default function EventDetails() {
               </ReactMarkdown>
             )}
           </CardDescription>
+          {eventData?.latitude && eventData?.longitude && (
+            <CardFooter>
+              <CardContent className="w-full h-auto">
+                <h3 className="text-xl font-semibold">Event Location</h3>
+                <div className="mt-6 rounded-lg overflow-hidden h-100">
+                  <MapWithMarker
+                    position={[eventData.latitude, eventData.longitude]}
+                  />
+                </div>
+              </CardContent>
+            </CardFooter>
+          )}
         </CardContent>
       </div>
     </Card>
