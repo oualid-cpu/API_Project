@@ -1,8 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addMinutes, format, set } from "date-fns";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { debounce } from "lodash";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
@@ -40,11 +41,19 @@ import { eventSchema } from "@/components/calendar/schemas";
 import { apiAddEvent, apiUpdateEvent } from "../requests";
 import { getUserProfileFromStorage } from "@/lib/auth";
 
+import MapWithMarker from "@/components/MapWithMarker";
+
 export function AddEditEventDialog({ children, startDate, startTime, event }) {
   const { isOpen, onClose, onToggle } = useDisclosure();
   const { addEvent, updateEvent } = useCalendar();
   const isEditing = !!event;
   const currentUser = getUserProfileFromStorage();
+
+  // State for latitude and longitude linked to the map and location field
+  const [coords, setCoords] = useState({
+    lat: event?.latitude || null,
+    lng: event?.longitude || null,
+  });
 
   const initialDates = useMemo(() => {
     if (!isEditing && !event) {
@@ -86,7 +95,42 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
       location: event?.location ?? "",
       eventType: event?.eventType ?? "",
     });
+
+    setCoords({
+      lat: event?.latitude || null,
+      lng: event?.longitude || null,
+    });
   }, [event, initialDates, form]);
+
+  // Debounced geocode from location input updates lat/lng in state
+  useEffect(() => {
+    const location = form.watch("location");
+    if (!location) return;
+
+    const geocode = debounce(async (loc) => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            loc
+          )}`
+        );
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const { lat, lon } = data[0];
+          setCoords({ lat: parseFloat(lat), lng: parseFloat(lon) });
+        } else {
+          setCoords({ lat: null, lng: null });
+        }
+      } catch (err) {
+        console.warn("Geocode error:", err);
+        setCoords({ lat: null, lng: null });
+      }
+    }, 500);
+
+    geocode(location);
+
+    return () => geocode.cancel();
+  }, [form.watch("location")]);
 
   const onSubmit = async (values) => {
     try {
@@ -97,17 +141,19 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
         endDate: format(values.endDate, "yyyy-MM-dd'T'HH:mm:ss"),
         location: values.location,
         eventType: values.eventType,
+        latitude: coords.lat,
+        longitude: coords.lng,
         organizerId: isEditing ? event.organizerId : currentUser.id,
       };
 
       let savedEvent;
       if (isEditing) {
         savedEvent = await apiUpdateEvent(event.id, payload);
-        updateEvent(savedEvent); // use API response to update context
+        updateEvent(savedEvent);
         toast.success("Event updated successfully");
       } else {
         savedEvent = await apiAddEvent(payload);
-        addEvent(savedEvent); // use API response to update context
+        addEvent(savedEvent);
         toast.success("Event created successfully");
       }
 
@@ -138,6 +184,7 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid gap-4 py-4"
           >
+            {/* Title */}
             <FormField
               control={form.control}
               name="title"
@@ -159,6 +206,7 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
               )}
             />
 
+            {/* Start Date */}
             <FormField
               control={form.control}
               name="startDate"
@@ -167,6 +215,7 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
               )}
             />
 
+            {/* End Date */}
             <FormField
               control={form.control}
               name="endDate"
@@ -175,6 +224,7 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
               )}
             />
 
+            {/* Location */}
             <FormField
               control={form.control}
               name="location"
@@ -196,6 +246,20 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
               )}
             />
 
+            {/* Leaflet Map */}
+            <div className="mb-4 h-64 rounded-lg overflow-hidden">
+              <MapWithMarker
+                position={
+                  coords.lat !== null && coords.lng !== null
+                    ? [coords.lat, coords.lng]
+                    : null
+                }
+                setPosition={(pos) => setCoords({ lat: pos.lat, lng: pos.lng })}
+                height={256}
+              />
+            </div>
+
+            {/* Event Type */}
             <FormField
               control={form.control}
               name="eventType"
@@ -233,6 +297,7 @@ export function AddEditEventDialog({ children, startDate, startTime, event }) {
               )}
             />
 
+            {/* Description */}
             <FormField
               control={form.control}
               name="description"
