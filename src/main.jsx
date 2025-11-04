@@ -14,7 +14,7 @@ import EventDetails from "./pages/EventDetails.jsx";
 // import SignIn from "./pages/SignIn.jsx";
 // import SignUp from "./pages/SignUp.jsx";
 import { LoginPage } from "./pages/LoginSignup.jsx";
-import CreateEvent from "./pages/CreateEvent.jsx";
+
 import NotFound from "./pages/NotFound.jsx";
 
 import "./index.css";
@@ -50,7 +50,6 @@ const router = createBrowserRouter([
         path: "events/new", // "/events/new" (protected)
         element: (
           <Protected>
-            <CreateEvent />
             <DashboardPage />
           </Protected>
         ),

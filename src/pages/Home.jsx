@@ -6,8 +6,20 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function Home() {
   const [events, setEvents] = useState([]);
+  const [pastEvents, setPastEvents] = useState();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+
+  const getEvents = (list) => {
+    const today = new Date();
+    const upcoming = list.filter((event) => new Date(event.startDate) >= today);
+    const past = list.filter((event) => new Date(event.startDate) < today);
+    upcoming.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+    past.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+    setEvents(upcoming);
+    setPastEvents(past);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -17,9 +29,9 @@ export default function Home() {
         if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         const data = await res.json();
         if (!alive) return;
-        const list = Array.isArray(data) ? data : [];
-        list.sort((a, b) => new Date(a.date) - new Date(b.date)); // chronological
-        setEvents(list);
+        const list = Array.isArray(data.results) ? data.results : [];
+
+        getEvents(list);
       } catch (e) {
         setErr(e.message || "Failed to load events");
       } finally {
@@ -46,9 +58,8 @@ export default function Home() {
       <header className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Upcoming Events</h1>
 
-        {/* optional create button; protected route will guard it */}
         <Link
-          to="/events/new"
+          to="/user/dashboard"
           className="rounded-lg bg-black px-3 py-2 text-white hover:opacity-90"
         >
           + Create
@@ -62,13 +73,18 @@ export default function Home() {
           {events.map((ev) => {
             const id = ev.id ?? ev._id; // support either key
             return (
-              <li key={id} className="rounded-xl border p-4 hover:shadow">
+              <li
+                key={id}
+                className="rounded-xl border p-4 bg-white/20 backdrop-blur-md hover:shadow"
+              >
                 <Link to={`/events/${id}`} className="block">
                   <h2 className="line-clamp-1 text-lg font-medium">
                     {ev.title}
                   </h2>
                   <p className="text-sm text-gray-500">
-                    {ev.date ? new Date(ev.date).toLocaleString() : "No date"}
+                    {ev.startDate
+                      ? new Date(ev.startDate).toLocaleString()
+                      : "No date"}
                   </p>
                   {ev.location && (
                     <p className="mt-1 text-sm text-gray-700">{ev.location}</p>
@@ -84,6 +100,46 @@ export default function Home() {
           })}
         </ul>
       )}
+
+      <section>
+        <h2 className="text-2xl font-semibold">Past Events</h2>
+        {pastEvents.length === 0 ? (
+          <p className="text-gray-600">No past events.</p>
+        ) : (
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pastEvents.map((ev) => {
+              const id = ev.id ?? ev._id; // support either key
+              return (
+                <li
+                  key={id}
+                  className="rounded-xl border p-4 bg-white/20 backdrop-blur-md hover:shadow"
+                >
+                  <Link to={`/events/${id}`} className="block">
+                    <h2 className="line-clamp-1 text-lg font-medium">
+                      {ev.title}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {ev.startDate
+                        ? new Date(ev.startDate).toLocaleString()
+                        : "No date"}
+                    </p>
+                    {ev.location && (
+                      <p className="mt-1 text-sm text-gray-700">
+                        {ev.location}
+                      </p>
+                    )}
+                    {ev.description && (
+                      <p className="mt-2 line-clamp-3 text-sm text-gray-600">
+                        {ev.description}
+                      </p>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
