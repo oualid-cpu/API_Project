@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <section id="homePage">
       <h1 className="text-3xl font-bold mt-6">Upcoming Events</h1>
-      <div className="grid grid-cols-3 gap-5 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap:3 lg:gap-5 items-stretch">
         {events.map((event) => (
           <EventCard
             key={event.id}
