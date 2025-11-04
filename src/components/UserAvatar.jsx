@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { fetchUserProfile } from "@/lib/auth";
+import { fetchUserProfile, getUserData } from "@/lib/auth";
 import { Link } from "react-router-dom";
 
-export default function UserAvatar() {
+export default function UserAvatar({ id }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     (async () => {
-      const profile = await fetchUserProfile();
-      setUser(profile);
+      if (!id) {
+        const profile = await fetchUserProfile();
+        setUser(profile);
+      } else {
+        const profile = await getUserData(id);
+        setUser({ name: profile });
+      }
     })();
   }, []);
 
@@ -27,10 +32,13 @@ export default function UserAvatar() {
   return (
     <div className="user-info flex items-center gap-2">
       <Avatar className="h-10 w-10">
-        <AvatarImage src={img} alt={name} />
-        <AvatarFallback className="bg-emerald-200 text-gray-700 font-semibold">
-          {initials}
-        </AvatarFallback>
+        {img ? (
+          <AvatarImage src={img} alt={name} />
+        ) : (
+          <AvatarFallback className="bg-emerald-200 text-gray-700 font-semibold">
+            {initials}
+          </AvatarFallback>
+        )}
       </Avatar>
       <Link to="/user/dashboard" className="cursor-pointer">
         <button className="font-medium text-gray-800 hover:underline cursor-pointer">
